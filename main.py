@@ -1,5 +1,4 @@
 import sys
-from graphsf import initialize_graph, print_graph
 from export_graph import export_to_tikz
 from algorytmy import generate_hamiltonian_graph, generate_non_hamiltonian_graph, find_eulerian_cycle, find_hamiltonian_cycle
 
@@ -11,6 +10,10 @@ def display_help():
     print("Hamilton   - Find Hamiltonian cycle using backtracking")
     print("Export     - Export the graph to TikZ picture")
     print("Exit       - Exit the program (same as Ctrl+C)")
+
+def print_graph(graph):
+    for node, neighbors in graph.items():
+        print(f"{node}: {neighbors}")
 
 def process_command(command, graph):
     args = command.split()
@@ -46,6 +49,9 @@ def main():
     while True:
         try:
             num_nodes = int(input('nodes> '))
+            if num_nodes <= 10:
+                print("Number of nodes must be greater than 10")
+                continue
             break
         except ValueError:
             print("Invalid input. Please enter a valid integer for number of nodes.")
@@ -54,6 +60,9 @@ def main():
         while True:
             try:
                 saturation = float(input('saturation> '))
+                if saturation not in [30, 70]:
+                    print("Saturation must be 30 or 70")
+                    continue
                 break
             except ValueError:
                 print("Invalid input. Please enter a valid integer for saturation.")

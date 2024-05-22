@@ -1,4 +1,4 @@
-from random import sample
+from random import sample, randint
 
 def generate_hamiltonian_graph(num_nodes, saturation):
     graph = {i: [] for i in range(1, num_nodes + 1)}
@@ -17,11 +17,21 @@ def generate_hamiltonian_graph(num_nodes, saturation):
             graph[v].append(u)
             edges_needed -= 1
 
+    for node in graph:
+        while len(graph[node]) % 2 != 0:
+            v = randint(1, num_nodes)
+            if v != node and v not in graph[node]:
+                graph[node].append(v)
+                graph[v].append(node)
+
     return graph
 
 def generate_non_hamiltonian_graph(num_nodes):
     graph = generate_hamiltonian_graph(num_nodes - 1, 50)
     graph[num_nodes] = []
+    for node in range(1, num_nodes):
+        graph[node].append(num_nodes)
+        graph[num_nodes].append(node)
     return graph
 
 def find_eulerian_cycle(graph):
