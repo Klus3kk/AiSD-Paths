@@ -34,7 +34,11 @@ def process_command(command, graph):
         except Exception as e:
             print(f"Error finding Hamiltonian cycle: {e}")
     elif cmd == 'export':
-        export_to_tikz(graph)
+        if len(args) > 1:
+            filename = args[1]
+        else:
+            filename = "graph.tex"
+        export_to_tikz(graph, filename)
     elif cmd == 'exit':
         print('Exiting...')
         sys.exit(0)
@@ -49,8 +53,8 @@ def main():
     while True:
         try:
             num_nodes = int(input('nodes> '))
-            if num_nodes <= 10:
-                print("Number of nodes must be greater than 10")
+            if sys.argv[1] == '--hamilton' and num_nodes <= 10:
+                print("Number of nodes must be greater than 10 for Hamiltonian graph")
                 continue
             break
         except ValueError:

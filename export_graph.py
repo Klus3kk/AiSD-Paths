@@ -1,5 +1,5 @@
-def export_to_tikz(graph):
-    print("Exporting graph to TikZ picture...")
+def export_to_tikz(graph, filename="graph.tex"):
+    print(f"Exporting graph to {filename}...")
     tikz_code = "\\begin{tikzpicture}\n"
     tikz_code += "\\GraphInit[vstyle=Normal]\n"
     tikz_code += "\\SetVertexNoLabel\n"
@@ -11,8 +11,7 @@ def export_to_tikz(graph):
     
     tikz_code += "\\end{tikzpicture}"
     
-    with open("graph.tex", "w") as file:
+    with open(filename, "w") as file:
         file.write(tikz_code)
     
-    print("Graph exported to graph.tex")
-
+    print(f"Graph exported to {filename}")
