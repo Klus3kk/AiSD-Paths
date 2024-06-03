@@ -12,7 +12,7 @@ def save_to_file(numbers, filename):
 def generate_files_with_random_numbers():
     os.makedirs('data/files', exist_ok=True)
 
-    n_values = [2**i for i in range(1, 20)]  # Tu zmieniasz, jakiej wielkości pliki chcesz wygenerować
+    n_values = [2**i for i in range(1, 8)]  # Tu zmieniasz, jakiej wielkości pliki chcesz wygenerować
 
     for n in n_values:
         numbers = generate_random_numbers(n)
