@@ -1,0 +1,11 @@
+W naszych algorytmach do reprezentacji grafu używamy list sąsiedztwa.
+
+Zalety listy sąsiedztwa:
+* Efektywność pamięciowa
+Lista sąsiedztwa jest bardziej efektywna pamięciowo niż macierz sąsiedztwa, szczególnie w przypadku grafów rzadkich (grafów o niskim nasyceniu).
+Przechowujemy tylko istniejące krawędzie, co zmniejsza zużycie pamięci.
+* Łatwość iteracji:
+Łatwo można iterować po wszystkich sąsiadach danego węzła, co jest przydatne w algorytmach do znajdowania cykli Hamiltona i Eulera.
+Algorytmy przeszukiwania, takie jak BFS i DFS, są bardziej naturalne do zaimplementowania z listą sąsiedztwa.
+* Dodawanie i usuwanie krawędzi:
+Operacje dodawania i usuwania krawędzi są prostsze i szybsze w przypadku listy sąsiedztwa.
