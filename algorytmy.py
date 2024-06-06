@@ -17,11 +17,11 @@ def generate_hamiltonian_graph(num_nodes, saturation):
         graph[u].append(v)
         graph[v].append(u)
 
+    # Add edges to achieve desired saturation
     total_possible_edges = num_nodes * (num_nodes - 1) // 2
     edges_needed = int(saturation * total_possible_edges / 100) - num_nodes
 
     added_edges = set()
-    
     while edges_needed > 0:
         u, v = sample(nodes, 2)
         if u != v and v not in graph[u]:
@@ -29,30 +29,7 @@ def generate_hamiltonian_graph(num_nodes, saturation):
             graph[v].append(u)
             edges_needed -= 1
             added_edges.add((min(u, v), max(u, v)))
-    
-    for node in graph:
-        while len(graph[node]) % 2 != 0:
-            for neighbor in nodes:
-                if neighbor != node and neighbor not in graph[node]:
-                    graph[node].append(neighbor)
-                    graph[neighbor].append(node)
-                    added_edges.add((min(node, neighbor), max(node, neighbor)))
-                    break
 
-    return graph
-
-def add_edges_to_ensure_even_degree(graph, num_nodes):
-    nodes = list(graph.keys())
-    while True:
-        u, v, w = sample(nodes, 3)
-        if v != w and w not in graph[u] and v not in graph[w]:
-            graph[u].append(w)
-            graph[w].append(u)
-            graph[v].append(w)
-            graph[w].append(v)
-            num_nodes -= 1
-            if num_nodes == 0:
-                break
     return graph
 
 def generate_non_hamiltonian_graph(num_nodes, saturation=50):
@@ -62,11 +39,11 @@ def generate_non_hamiltonian_graph(num_nodes, saturation=50):
     graph = {i: [] for i in range(1, num_nodes + 1)}
     nodes = list(range(1, num_nodes + 1))
 
+    # Add edges to achieve desired saturation
     total_possible_edges = num_nodes * (num_nodes - 1) // 2
     edges_needed = int(saturation * total_possible_edges / 100)
 
     added_edges = set()
-
     while edges_needed > 0:
         u, v = sample(nodes, 2)
         if u != v and v not in graph[u]:
@@ -75,15 +52,12 @@ def generate_non_hamiltonian_graph(num_nodes, saturation=50):
             edges_needed -= 1
             added_edges.add((min(u, v), max(u, v)))
 
-    # Ensure one isolated node to break Hamiltonian cycle possibility
+    # Ensure there is no Hamiltonian cycle
     isolated_node = randint(1, num_nodes)
     for node in list(graph.keys()):
         if node != isolated_node:
             graph[node] = [v for v in graph[node] if v != isolated_node]
     graph[isolated_node] = []
-
-    # Add edges to ensure even degree of each node
-    graph = add_edges_to_ensure_even_degree(graph, num_nodes)
 
     return graph
 
