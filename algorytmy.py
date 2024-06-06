@@ -1,25 +1,27 @@
 from random import sample, randint
 
 def generate_hamiltonian_graph(num_nodes, saturation):
-    # Inicjalizacja grafu
+    if num_nodes <= 0:
+        raise ValueError("Number of nodes must be greater than 0")
+    if saturation not in [30, 70]:
+        raise ValueError("Saturation must be either 30 or 70")
+
     graph = {i: [] for i in range(1, num_nodes + 1)}
     nodes = list(range(1, num_nodes + 1))
-    
-    # Tworzenie cyklu Hamiltona
+
+    # Create a Hamiltonian cycle
     hamiltonian_cycle = sample(nodes, num_nodes)
     for i in range(num_nodes):
         u = hamiltonian_cycle[i]
         v = hamiltonian_cycle[(i + 1) % num_nodes]
         graph[u].append(v)
         graph[v].append(u)
-    
-    # Obliczanie liczby potrzebnych krawędzi do osiągnięcia nasycenia
+
     total_possible_edges = num_nodes * (num_nodes - 1) // 2
     edges_needed = int(saturation * total_possible_edges / 100) - num_nodes
 
     added_edges = set()
     
-    # Dodawanie dodatkowych krawędzi do osiągnięcia nasycenia
     while edges_needed > 0:
         u, v = sample(nodes, 2)
         if u != v and v not in graph[u]:
@@ -28,7 +30,6 @@ def generate_hamiltonian_graph(num_nodes, saturation):
             edges_needed -= 1
             added_edges.add((min(u, v), max(u, v)))
     
-    # Dopasowanie stopni wierzchołków do parzystych
     for node in graph:
         while len(graph[node]) % 2 != 0:
             for neighbor in nodes:
@@ -40,26 +41,57 @@ def generate_hamiltonian_graph(num_nodes, saturation):
 
     return graph
 
-
-
-
-
-def generate_non_hamiltonian_graph(num_nodes):
-    graph = generate_hamiltonian_graph(num_nodes - 1, 50)
-    isolated_node = num_nodes
-    graph[isolated_node] = []
-    for node in range(1, num_nodes):
-        graph[node].append(isolated_node)
-        graph[isolated_node].append(node)
+def add_edges_to_ensure_even_degree(graph, num_nodes):
+    nodes = list(graph.keys())
+    while True:
+        u, v, w = sample(nodes, 3)
+        if v != w and w not in graph[u] and v not in graph[w]:
+            graph[u].append(w)
+            graph[w].append(u)
+            graph[v].append(w)
+            graph[w].append(v)
+            num_nodes -= 1
+            if num_nodes == 0:
+                break
     return graph
 
+def generate_non_hamiltonian_graph(num_nodes, saturation=50):
+    if num_nodes <= 1:
+        raise ValueError("Number of nodes must be greater than 1")
 
+    graph = {i: [] for i in range(1, num_nodes + 1)}
+    nodes = list(range(1, num_nodes + 1))
+
+    total_possible_edges = num_nodes * (num_nodes - 1) // 2
+    edges_needed = int(saturation * total_possible_edges / 100)
+
+    added_edges = set()
+
+    while edges_needed > 0:
+        u, v = sample(nodes, 2)
+        if u != v and v not in graph[u]:
+            graph[u].append(v)
+            graph[v].append(u)
+            edges_needed -= 1
+            added_edges.add((min(u, v), max(u, v)))
+
+    # Ensure one isolated node to break Hamiltonian cycle possibility
+    isolated_node = randint(1, num_nodes)
+    for node in list(graph.keys()):
+        if node != isolated_node:
+            graph[node] = [v for v in graph[node] if v != isolated_node]
+    graph[isolated_node] = []
+
+    # Add edges to ensure even degree of each node
+    graph = add_edges_to_ensure_even_degree(graph, num_nodes)
+
+    return graph
 
 def find_eulerian_cycle(graph):
     def remove_edge(g, u, v):
         g[u].remove(v)
         g[v].remove(u)
-    
+
     graph_copy = {node: neighbors[:] for node, neighbors in graph.items()}
     stack = []
     cycle = []
@@ -78,21 +110,18 @@ def find_eulerian_cycle(graph):
 
     return cycle
 
-
 def is_valid_vertex(v, pos, path, graph):
     if v not in graph[path[pos - 1]]:
         return False
-    for node in path:
-        if node == v:
-            return False
+    if v in path:
+        return False
     return True
 
 def hamiltonian_cycle_util(graph, path, pos):
     if pos == len(graph):
         if path[0] in graph[path[pos - 1]]:
             return True
-        else:
-            return False
+        return False
 
     for vertex in graph:
         if is_valid_vertex(vertex, pos, path, graph):

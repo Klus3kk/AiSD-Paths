@@ -17,6 +17,10 @@ def print_graph(graph):
 
 def process_command(command, graph):
     args = command.split()
+    if not args:
+        print("Invalid command. Type 'help' for a list of commands.")
+        return
+
     cmd = args[0].lower()
 
     if cmd == 'help':
@@ -25,20 +29,32 @@ def process_command(command, graph):
         print_graph(graph)
     elif cmd == 'euler':
         try:
-            print("Eulerian cycle: ", find_eulerian_cycle(graph))
+            cycle = find_eulerian_cycle(graph)
+            if cycle:
+                print("Eulerian cycle: ", cycle)
+            else:
+                print("No Eulerian cycle found")
         except Exception as e:
             print(f"Error finding Eulerian cycle: {e}")
     elif cmd == 'hamilton':
         try:
-            print("Hamiltonian cycle: ", find_hamiltonian_cycle(graph))
+            cycle = find_hamiltonian_cycle(graph)
+            if cycle:
+                print("Hamiltonian cycle: ", cycle)
+            else:
+                print("No Hamiltonian cycle found")
         except Exception as e:
             print(f"Error finding Hamiltonian cycle: {e}")
     elif cmd == 'export':
-        if len(args) > 1:
-            filename = args[1]
-        else:
-            filename = "graph.tex"
-        export_to_tikz(graph, filename)
+        try:
+            if len(args) > 1:
+                filename = args[1]
+            else:
+                filename = input("Please enter the filename to export the graph: ")
+            filename += '.tex'
+            export_to_tikz(graph, filename)
+        except Exception as e:
+            print(f"Error exporting graph: {e}")
     elif cmd == 'exit':
         print('Exiting...')
         sys.exit(0)
@@ -54,32 +70,38 @@ def main():
         try:
             num_nodes = int(input('nodes> '))
             if sys.argv[1] == '--hamilton' and num_nodes <= 10:
-                print("Number of nodes must be greater than 10 for Hamiltonian graph")
-                continue
-            break
-        except ValueError:
-            print("Invalid input. Please enter a valid integer for number of nodes.")
+                raise ValueError("Number of nodes must be greater than 10 for Hamiltonian graph")
+            elif num_nodes < 1:
+                raise ValueError("Number of nodes must be at least 1")
+            break  # Exit the loop if input is valid
+        except ValueError as e:
+            print(f"Invalid input: {e}")
 
     if sys.argv[1] == '--hamilton':
         while True:
             try:
                 saturation = float(input('saturation> '))
                 if saturation not in [30, 70]:
-                    print("Saturation must be 30 or 70")
-                    continue
-                break
-            except ValueError:
-                print("Invalid input. Please enter a valid integer for saturation.")
+                    raise ValueError("Saturation must be 30 or 70")
+                break  # Exit the loop if input is valid
+            except ValueError as e:
+                print(f"Invalid input: {e}")
         graph = generate_hamiltonian_graph(num_nodes, saturation)
     else:
-        graph = generate_non_hamiltonian_graph(num_nodes)
+        saturation = 50  # Fixed saturation for non-Hamiltonian graph
+        graph = generate_non_hamiltonian_graph(num_nodes, saturation)
 
     while True:
         try:
             command = input('\naction> ')
             process_command(command, graph)
-        except Exception as e:
-            print(f"An error occurred: {e}")
+        except ValueError as e:  # Catch specific errors from your functions
+            print(f"Error: {e}")
+        except KeyboardInterrupt:
+            print("\nProgram terminated by user.")
+            break
+        except Exception as e:  # Catch any other unexpected errors
+            print(f"An unexpected error occurred: {e}")
 
 if __name__ == '__main__':
     main()
